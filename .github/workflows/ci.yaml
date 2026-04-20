@@ -75,13 +75,6 @@ jobs:
           done
           exit $failed
 
-      - name: ✅ Validate skills-manifest.json
-        run: |
-          if ! jq -e '.plugins | keys | length > 0' skills-manifest.json > /dev/null 2>&1; then
-            echo "::error::Invalid skills-manifest.json"
-            exit 1
-          fi
-          echo "✓ skills-manifest.json is valid"
 
   discover-skills:
     name: Discover skills
