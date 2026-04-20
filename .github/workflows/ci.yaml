@@ -104,7 +104,7 @@ jobs:
       - name: 📂 List skill directories
         id: list
         run: |
-          skills=$(find plugins -mindepth 3 -maxdepth 3 -name SKILL.md -printf '%h\n' \
+          skills=$(find plugins -mindepth 4 -maxdepth 4 -name SKILL.md -printf '%h\n' \
             | sed 's|^\./||' \
             | sort \
             | jq -R -s -c 'split("\n") | map(select(length > 0))')

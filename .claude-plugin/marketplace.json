@@ -11,7 +11,7 @@
   "plugins": [
     {
       "name": "gitops-kubernetes",
-      "description": "GitOps & Kubernetes debugging, auditing, and knowledge skills",
+      "description": "Flux CD debugging, knowledge, and repository auditing skills",
       "version": "1.0.0",
       "source": "./plugins/gitops-kubernetes"
     },
@@ -29,7 +29,7 @@
     },
     {
       "name": "go",
-      "description": "Go development with Bubble Tea TUIs and best practices",
+      "description": "Go best practices, concurrency, generics, interfaces, and testing skills",
       "version": "1.0.0",
       "source": "./plugins/go"
     },

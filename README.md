@@ -8,10 +8,10 @@ Supports **VS Code**, **GitHub Copilot CLI**, and **Claude Code** via dual marke
 
 | Plugin | Skills | Description |
 |--------|--------|-------------|
-| [`gitops-kubernetes`](plugins/gitops-kubernetes/) | `gitops-cluster-debug`, `gitops-knowledge`, `gitops-repo-audit`, `siderolabs` | GitOps & Kubernetes debugging, auditing, and knowledge |
+| [`gitops-kubernetes`](plugins/gitops-kubernetes/) | `gitops-cluster-debug`, `gitops-knowledge`, `gitops-repo-audit` | Flux CD debugging, knowledge, and repository auditing |
 | [`github`](plugins/github/) | `gh-cli`, `gh-stack`, `github-actions-docs`, `github-issues` | GitHub CLI, stacked PRs, Actions docs, and issue management |
 | [`copilot`](plugins/copilot/) | `copilot-instructions-blueprint-generator`, `copilot-sdk`, `find-skills` | Copilot customisation and skill discovery |
-| [`go`](plugins/go/) | `bubbletea`, `golang-pro` | Go development with Bubble Tea TUIs and best practices |
+| [`go`](plugins/go/) | `golang-pro` | Go best practices, concurrency, generics, interfaces, and testing |
 | [`engineering-practices`](plugins/engineering-practices/) | `git-commit`, `refactor`, `test-driven-development` | Git commits, refactoring, and TDD |
 | [`frontend-design`](plugins/frontend-design/) | `astro`, `frontend-design`, `web-design-guidelines` | Astro, frontend design, and web design guidelines |
 
@@ -46,9 +46,9 @@ The repo includes a `.claude-plugin/marketplace.json` for automatic discovery.
 
 ## How it works
 
-Skills are **vendored** from their upstream repositories using the [`npx skills add`](https://agentskills.io) CLI. A [daily sync workflow](.github/workflows/sync-skills.yaml) re-vendors all skills and opens a PR when upstream content has drifted.
+Skills are installed from their upstream repositories using [`gh skill install`](https://github.blog/changelog/2026-04-16-manage-agent-skills-with-github-cli/). A [daily update workflow](.github/workflows/sync-skills.yaml) runs [`gh skill update --all`](https://github.com/devantler-tech/actions/tree/main/update-copilot-skills) via the [`update-copilot-skills`](https://github.com/devantler-tech/reusable-workflows/blob/main/.github/workflows/update-copilot-skills.yaml) reusable workflow and opens a PR when upstream content has drifted.
 
-Each plugin directory is self-contained with a `plugin.json` manifest and a `skills/` subdirectory holding the vendored `SKILL.md` files (plus any supporting assets).
+Each plugin directory is self-contained with a `plugin.json` manifest and a `skills/` subdirectory holding the installed `SKILL.md` files (plus any supporting assets). Each `SKILL.md` contains `metadata.github-*` frontmatter for upstream provenance — no lockfile needed.
 
 See [`devantler-tech/skills`](https://github.com/devantler-tech/skills) for the curated skill index and upstream links.
 

@@ -3,8 +3,7 @@
     "gitops-kubernetes": [
       { "skill": "gitops-cluster-debug", "source": "fluxcd/agent-skills" },
       { "skill": "gitops-knowledge", "source": "fluxcd/agent-skills" },
-      { "skill": "gitops-repo-audit", "source": "fluxcd/agent-skills" },
-      { "skill": "siderolabs", "source": "siderolabs/docs" }
+      { "skill": "gitops-repo-audit", "source": "fluxcd/agent-skills" }
     ],
     "github": [
       { "skill": "gh-cli", "source": "github/awesome-copilot" },
@@ -18,7 +17,6 @@
       { "skill": "find-skills", "source": "vercel-labs/skills" }
     ],
     "go": [
-      { "skill": "bubbletea", "source": "ggprompts/tfe" },
       { "skill": "golang-pro", "source": "Jeffallan/claude-skills" }
     ],
     "engineering-practices": [

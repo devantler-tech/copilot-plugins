@@ -1,6 +1,6 @@
 {
   "name": "go",
-  "description": "Go development with Bubble Tea TUIs and best practices",
+  "description": "Go best practices, concurrency, generics, interfaces, and testing skills",
   "version": "1.0.0",
   "author": {
     "name": "devantler-tech",
