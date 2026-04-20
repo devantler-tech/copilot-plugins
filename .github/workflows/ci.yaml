@@ -159,7 +159,7 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: devantler-tech/actions/require-checks-in-pr@61ae89ec83b943bd3a486fdcaf91cb66fd6b8760 # feat/require-checks-in-pr
+      - uses: devantler-tech/actions/require-checks-in-pr@1f66c91d45d374ceac9fe830a783444ebc9be958 # v3.2.0
         with:
           job-results: >-
             ${{ needs.validate-manifests.result }}
