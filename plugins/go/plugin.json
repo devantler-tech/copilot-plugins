@@ -1,0 +1,10 @@
+{
+  "name": "go",
+  "description": "Go development with Bubble Tea TUIs and best practices",
+  "version": "1.0.0",
+  "author": {
+    "name": "devantler-tech",
+    "url": "https://github.com/devantler-tech"
+  },
+  "skills": "skills/"
+}

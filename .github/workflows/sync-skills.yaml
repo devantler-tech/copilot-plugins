@@ -1,0 +1,54 @@
+name: 🔄 Sync Skills
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *" # Daily at 06:00 UTC
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  sync:
+    name: Sync skills from upstream
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+        with:
+          egress-policy: audit
+
+      - name: 📄 Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: true
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: "24"
+
+      - name: 🔄 Sync skills from upstream
+        run: ./sync-skills.sh
+
+      - name: 📦 Create pull request
+        uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8.1.0
+        with:
+          commit-message: "chore(deps): sync vendored skills from upstream"
+          title: "chore(deps): sync vendored skills from upstream"
+          body: |
+            Automated sync of vendored skills from upstream repositories.
+
+            Updated files:
+            - `plugins/*/skills/*/SKILL.md`
+
+            See `skills-manifest.json` for the full skill-to-upstream mapping.
+          branch: deps/sync-upstream-skills
+          labels: dependencies,automation
+          delete-branch: true

@@ -1,0 +1,155 @@
+name: 🧪 CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  validate-manifests:
+    name: Validate manifests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+        with:
+          egress-policy: audit
+
+      - name: 📄 Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: ✅ Validate marketplace.json (Copilot)
+        run: |
+          if ! jq -e '.name and .plugins' .github/plugin/marketplace.json > /dev/null 2>&1; then
+            echo "::error::Invalid .github/plugin/marketplace.json"
+            exit 1
+          fi
+          echo "✓ .github/plugin/marketplace.json is valid"
+
+      - name: ✅ Validate marketplace.json (Claude)
+        run: |
+          if ! jq -e '.name and .plugins' .claude-plugin/marketplace.json > /dev/null 2>&1; then
+            echo "::error::Invalid .claude-plugin/marketplace.json"
+            exit 1
+          fi
+          echo "✓ .claude-plugin/marketplace.json is valid"
+
+      - name: ✅ Validate marketplace parity
+        run: |
+          if ! diff <(jq -S . .github/plugin/marketplace.json) <(jq -S . .claude-plugin/marketplace.json) > /dev/null 2>&1; then
+            echo "::error::Marketplace manifests are out of sync"
+            diff <(jq -S . .github/plugin/marketplace.json) <(jq -S . .claude-plugin/marketplace.json) || true
+            exit 1
+          fi
+          echo "✓ Marketplace manifests are in sync"
+
+      - name: ✅ Validate plugin.json files
+        run: |
+          failed=0
+          for pj in plugins/*/plugin.json; do
+            plugin_dir=$(dirname "$pj")
+            plugin_name=$(jq -r '.name' "$pj" 2>/dev/null || echo "")
+            if [ -z "$plugin_name" ]; then
+              echo "::error::$pj: missing or invalid 'name' field"
+              failed=1
+              continue
+            fi
+            if ! echo "$plugin_name" | grep -qE '^[a-z0-9-]+$'; then
+              echo "::error::$pj: name '$plugin_name' must be kebab-case (a-z, 0-9, hyphens)"
+              failed=1
+              continue
+            fi
+            echo "✓ $pj ($plugin_name)"
+          done
+          exit $failed
+
+      - name: ✅ Validate skills-manifest.json
+        run: |
+          if ! jq -e '.plugins | keys | length > 0' skills-manifest.json > /dev/null 2>&1; then
+            echo "::error::Invalid skills-manifest.json"
+            exit 1
+          fi
+          echo "✓ skills-manifest.json is valid"
+
+  discover-skills:
+    name: Discover skills
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      skills: ${{ steps.list.outputs.skills }}
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+        with:
+          egress-policy: audit
+
+      - name: 📄 Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: 📂 List skill directories
+        id: list
+        run: |
+          skills=$(find plugins -mindepth 3 -maxdepth 3 -name SKILL.md -printf '%h\n' \
+            | sed 's|^\./||' \
+            | sort \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          if ! jq -e 'type == "array"' >/dev/null 2>&1 <<<"$skills"; then
+            echo "::error::Skill discovery produced invalid output."
+            exit 1
+          fi
+          echo "skills=$skills" >> "$GITHUB_OUTPUT"
+          echo "Discovered: $skills"
+
+  validate-spec:
+    name: Validate spec (${{ matrix.skill }})
+    needs: discover-skills
+    if: needs.discover-skills.outputs.skills != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        skill: ${{ fromJson(needs.discover-skills.outputs.skills) }}
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+        with:
+          egress-policy: audit
+
+      - name: 📄 Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.12"
+
+      - name: 📦 Install skills-ref
+        env:
+          AGENTSKILLS_REF: 8d8fcbc69e0c42e05922c2ffc287a3bbdef7b0a3
+        run: |
+          python -m pip install --disable-pip-version-check \
+            "skills-ref @ git+https://github.com/agentskills/agentskills.git@${AGENTSKILLS_REF}#subdirectory=skills-ref"
+
+      - name: ✅ Validate ${{ matrix.skill }} against agentskills.io spec
+        env:
+          SKILL: ${{ matrix.skill }}
+        run: skills-ref validate "$SKILL"

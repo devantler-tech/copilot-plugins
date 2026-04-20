@@ -1,0 +1,49 @@
+{
+  "name": "devantler-copilot-plugins",
+  "metadata": {
+    "description": "Curated agent skills bundled by category from devantler-tech/skills",
+    "version": "1.0.0"
+  },
+  "owner": {
+    "name": "devantler-tech",
+    "url": "https://github.com/devantler-tech"
+  },
+  "plugins": [
+    {
+      "name": "gitops-kubernetes",
+      "description": "GitOps & Kubernetes debugging, auditing, and knowledge skills",
+      "version": "1.0.0",
+      "source": "./plugins/gitops-kubernetes"
+    },
+    {
+      "name": "github",
+      "description": "GitHub CLI, stacked PRs, Actions docs, and issue management skills",
+      "version": "1.0.0",
+      "source": "./plugins/github"
+    },
+    {
+      "name": "copilot",
+      "description": "Copilot customisation and skill discovery skills",
+      "version": "1.0.0",
+      "source": "./plugins/copilot"
+    },
+    {
+      "name": "go",
+      "description": "Go development with Bubble Tea TUIs and best practices",
+      "version": "1.0.0",
+      "source": "./plugins/go"
+    },
+    {
+      "name": "engineering-practices",
+      "description": "Git commits, refactoring, and test-driven development skills",
+      "version": "1.0.0",
+      "source": "./plugins/engineering-practices"
+    },
+    {
+      "name": "frontend-design",
+      "description": "Astro, frontend design, and web design guidelines skills",
+      "version": "1.0.0",
+      "source": "./plugins/frontend-design"
+    }
+  ]
+}
