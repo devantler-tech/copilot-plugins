@@ -150,6 +150,10 @@ jobs:
   ci-required-checks:
     name: CI - Required Checks
     runs-on: ubuntu-latest
+    permissions:
+      checks: read
+      statuses: read
+      pull-requests: read
     timeout-minutes: 5
     needs: [validate-manifests, discover-skills, validate-spec]
     if: ${{ always() }}
