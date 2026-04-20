@@ -146,3 +146,22 @@ jobs:
         env:
           SKILL: ${{ matrix.skill }}
         run: skills-ref validate "$SKILL"
+
+  ci-required-checks:
+    name: CI - Required Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [validate-manifests, discover-skills, validate-spec]
+    if: ${{ always() }}
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+        with:
+          egress-policy: audit
+
+      - uses: devantler-tech/actions/require-checks-in-pr@61ae89ec83b943bd3a486fdcaf91cb66fd6b8760 # feat/require-checks-in-pr
+        with:
+          job-results: >-
+            ${{ needs.validate-manifests.result }}
+            ${{ needs.discover-skills.result }}
+            ${{ needs.validate-spec.result }}
